@@ -14,6 +14,7 @@ class Widget : public QWidget
 
 public:
     explicit Widget(QWidget *parent = 0);
+	Widget(char *path, QWidget *parent = 0);
     ~Widget();
 
 private slots:
@@ -24,6 +25,7 @@ private slots:
 private:
     Ui::Widget *ui;
 	TableModel *m_model;
+	QString source_path;
 };
 
 #endif // WIDGET_H

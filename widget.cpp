@@ -22,6 +22,20 @@ Widget::Widget(QWidget *parent) :
 	l_hh->setResizeMode(0, QHeaderView::Stretch);
 }
 
+
+Widget::Widget(char *path, QWidget *parent) :
+    QWidget(parent),
+	source_path(path),
+    ui(new Ui::Widget),
+	m_model(new TableModel(this))
+{
+    ui->setupUi(this);
+	ui->tableView->setModel(m_model);
+	QHeaderView *l_hh = ui->tableView->horizontalHeader();
+	l_hh->setResizeMode(0, QHeaderView::Stretch);
+	on_pushButton_doIt_clicked();
+}
+
 Widget::~Widget()
 {
     delete ui;
@@ -39,9 +53,16 @@ void Widget::on_pushButton_doIt_clicked()
 {
 	int l_files = 0, l_dirs = 0;
 	std::list<QString> l_list;
-	l_list.push_back(QFileInfo(ui->lineEdit_folderPath->text()).absoluteFilePath());
-	if (QMessageBox::question(this, windowTitle() + " - question", QString("Continue with '%1'?").arg(l_list.front()), QMessageBox::Ok, QMessageBox::Cancel) != QMessageBox::Ok)
-		return;
+	if (!source_path.isEmpty())
+	{
+		l_list.push_back(source_path);
+	}
+	else
+	{
+		l_list.push_back(QFileInfo(ui->lineEdit_folderPath->text()).absoluteFilePath());
+		if (QMessageBox::question(this, windowTitle() + " - question", QString("Continue with '%1'?").arg(l_list.front()), QMessageBox::Ok, QMessageBox::Cancel) != QMessageBox::Ok)
+			return;
+	}
 	while (!l_list.empty())
 	{
 		const QString l_one(l_list.front());
@@ -86,8 +107,11 @@ void Widget::on_pushButton_doIt_clicked()
 				l_list.push_back(l_cont[i].absoluteFilePath());
 		}
 	}
-
-	QMessageBox::information(this, windowTitle() + " - info", QString("%1 file(s) and %2 folder(s) renamed").arg(l_files).arg(l_dirs));
+	
+	if (source_path.isEmpty())
+	{
+		QMessageBox::information(this, windowTitle() + " - info", QString("%1 file(s) and %2 folder(s) renamed").arg(l_files).arg(l_dirs));
+	}
 }
 
 void Widget::on_pushButton_copy_clicked()
